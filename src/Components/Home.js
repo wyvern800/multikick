@@ -19,6 +19,13 @@ const Wrapper = styled.div`
   user-select: none; /* Standard syntax */
 `;
 
+const WrapperCredits = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+`;
+
 const Streams = styled.div`
   display: flex;
   width: 100%;
@@ -44,10 +51,12 @@ const Streams = styled.div`
     `}
 
   // 5 or more channels
-  ${(props) => props.amountOfChats >= 5 && css`
+  ${(props) =>
+    props.amountOfChats >= 5 &&
+    css`
       justify-content: flex-start;
       align-items: flex-start;
-  `}
+    `}
 `;
 
 const LiveStream = styled.iframe`
@@ -159,6 +168,34 @@ const CurrentChat = styled.iframe`
     `}
 `;
 
+const Credits = styled.div`
+  display: flex;
+  color: white;
+  width: 35%;
+  height: 30%;
+  border: 1px solid #53fc18;
+  align-items: center;
+  justify-content: center;
+  padding: 2%;
+  border-radius: 10px;
+
+  @media (max-width: 1200px) {
+    width: 60%;
+    border: 0;
+    margin: 10px;
+    font-size: 3vw;
+  }
+`;
+
+const Title = styled.h2`
+  font-weight: bold;
+  color: #53fc18;
+
+  @media (max-width: 1200px) {
+    font-size: 5vw;
+  }
+`;
+
 const Home = () => {
   const location = useLocation();
   const [loaded, setLoaded] = useState(false);
@@ -196,7 +233,7 @@ const Home = () => {
               if (!selectedLives.includes(username)) {
                 selectedLives.push(username);
               } else {
-                console.log('username already present');
+                console.log("username already present");
               }
             }
             return username;
@@ -215,60 +252,77 @@ const Home = () => {
               setLiveStreams(ordered);
               setCurrentChat(ordered[0]);
               setLoaded(true);
-            }, 1000);
+            }, 500);
           });
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    loaded && (
-      <Wrapper>
-        <Streams amountOfChats={liveStreams?.length}>
-          {liveStreams.map((live, index) => {
-            return (
-              <LiveStream
-                key={index}
-                amountOfChats={liveStreams?.length}
-                title={`Livestream - ${live}`}
-                width="401"
-                height="226"
-                src={`https://player.kick.com/${live}?muted=${
-                  index === 0 ? "false" : "true"
-                }`}
-                frameBorder="0"
-                allowFullScreen
-              ></LiveStream>
-            );
-          })}
-        </Streams>
-        <ChatBar>
-          <ChatTabs>
+    <Wrapper>
+      {loaded && liveStreams.length > 0 ? (
+        <>
+          <Streams amountOfChats={liveStreams?.length}>
             {liveStreams.map((live, index) => {
               return (
-                <ChatTab
+                <LiveStream
                   key={index}
-                  active={currentChat === live}
-                  onClick={() => {
-                    setCurrentChat(live);
-                  }}
-                >
-                  {live}
-                </ChatTab>
+                  amountOfChats={liveStreams?.length}
+                  title={`Livestream - ${live}`}
+                  width="401"
+                  height="226"
+                  src={`https://player.kick.com/${live}?muted=${
+                    index === 0 ? "false" : "true"
+                  }`}
+                  frameBorder="0"
+                  allowFullScreen
+                ></LiveStream>
               );
             })}
-          </ChatTabs>
-          {currentChat !== null && (
-            <CurrentChat
-              amountOfChats={liveStreams?.length}
-              title={`Chat - ${currentChat}`}
-              src={`https://kick.com/${currentChat}/chatroom`}
-              frameBorder="0"
-            ></CurrentChat>
-          )}
-        </ChatBar>
-      </Wrapper>
-    )
+          </Streams>
+          <ChatBar>
+            <ChatTabs>
+              {liveStreams.map((live, index) => {
+                return (
+                  <ChatTab
+                    key={index}
+                    active={currentChat === live}
+                    onClick={() => {
+                      setCurrentChat(live);
+                    }}
+                  >
+                    {live}
+                  </ChatTab>
+                );
+              })}
+            </ChatTabs>
+            {currentChat !== null && (
+              <CurrentChat
+                amountOfChats={liveStreams?.length}
+                title={`Chat - ${currentChat}`}
+                src={`https://kick.com/${currentChat}/chatroom`}
+                frameBorder="0"
+              ></CurrentChat>
+            )}
+          </ChatBar>
+        </>
+      ) : (
+        <WrapperCredits>
+          <Title>MultiKick.com</Title>
+          <Credits>
+            Welcome to MultiKick! You can use this site to watch any number of
+            kick.com streams at the same time (as long as your computer can
+            handle it). Simply put the streams you want in the url. For example:
+            multi-kick.com/godzamy/geekleaguecanal/arlekinagames/morpheusgameplay.
+            MultiKick will optimize the layout of streams to give you the
+            maximum size on each of the streams, while maintaining aspect ratio.
+            For the curious, the source of this page is available at
+            github.com/wyvern800/multikick. Happy streamwatching! Created by
+            Matheus Ferreira
+          </Credits>
+        </WrapperCredits>
+      )}
+    </Wrapper>
   );
 };
 
