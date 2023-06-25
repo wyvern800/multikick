@@ -328,7 +328,7 @@ const Home = () => {
           </>
         ) : !loaded && !empty ? (
           <Styled.LoadingDiv>
-            <Styled.Loader size={75} color={"#53fc18"}/>
+            <Styled.Loader size={75} color={"#53fc18"} />
           </Styled.LoadingDiv>
         ) : (
           <Styled.WrapperCredits>
@@ -337,13 +337,10 @@ const Home = () => {
               Welcome to MultiKick! You can use this site to watch any number of
               kick.com streams at the same time (as long as your computer can
               handle it). Simply put the streams you want in the url. For
-              example:
-              <Styled.Link href="#">
-                multi-kick.com/godzamy/geekleaguecanal/arlekinagames/morpheusgameplay
-              </Styled.Link>
-              . MultiKick will optimize the layout of streams to give you the
-              maximum size on each of the streams, while maintaining aspect
-              ratio. For the curious, the source of this page is available at
+              example: multikick.stream/godzamy. MultiKick will optimize the
+              layout of streams to give you the maximum size on each of the
+              streams, while maintaining aspect ratio. For the curious, the
+              source of this page is available at
               github.com/wyvern800/multikick. Happy streamwatching!
               <Styled.CreatedBy>Created by Matheus Ferreira</Styled.CreatedBy>
             </Styled.Credits>
