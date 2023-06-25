@@ -60,7 +60,6 @@ const Home = () => {
               if (!selectedLives.includes(username)) {
                 selectedLives.push(username);
               } else {
-                const params = new URLSearchParams(location.search);
                 setDuplicate(true);
               }
             }
