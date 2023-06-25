@@ -1,16 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
 
 body {
-  background-color: rgb(11,14,15);
+  background-color: rgb(11, 14, 15);
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
   font-family: 'Roboto', sans-serif;
   line-height: 1.4rem;
+
+  outline: none;
 }
 
 *::-webkit-scrollbar {
@@ -18,11 +20,11 @@ body {
 }
 
 *::-webkit-scrollbar-track {
-  background: rgb(11,14,15);
+  background: rgb(11, 14, 15);
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgb(72,74,75);
+  background: rgb(72, 74, 75);
   border-radius: 8px;
 }
 
