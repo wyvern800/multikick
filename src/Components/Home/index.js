@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import * as Styled from "./styles";
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
+import Ads from "../Ads";
 
 const Home = () => {
   const location = useLocation();
@@ -104,7 +105,7 @@ const Home = () => {
             copy.push(channel);
             setLiveStreams(copy);
             searchRef.current.value = "";
-            
+
             // Se for o primeiro canal, ativar chat e descolapsa menu direito
             if (liveStreams?.length === 0) {
               setCurrentChat(channel);
@@ -251,9 +252,11 @@ const Home = () => {
                     </Styled.Header>
                   </Styled.TopSection>
 
-                  <Styled.EmptyDiv />
+                  <Styled.EmptyDiv border={true}/>
 
                   <Styled.ConsiderDonating>
+                    <Ads dataAdSlot="2611193497" />
+                    <Styled.EmptyDivBordered />
                     If you liked our service, consider sharing and donating to
                     keep it improving
                   </Styled.ConsiderDonating>

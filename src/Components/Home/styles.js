@@ -307,7 +307,7 @@ export const ChannelsRow = styled.div`
   align-items: center;
   padding: 5px;
   flex-direction: column;
-  max-height: 695px;
+  max-height: 530px;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
@@ -424,6 +424,11 @@ export const EmptyDiv = styled.div`
   display: none;
 `;
 
+export const EmptyDivBordered = styled.div`
+  border-top: 1px solid #24272C;
+  width: 100%;
+`;
+
 export const TopSection = styled.div`
   width: 100%;
   display: flex;
@@ -435,8 +440,9 @@ export const ConsiderDonating = styled.div`
   align-items: center;
   justify-content: center;
   border-top: 1px solid #24272C;
-  padding: 5px;
+  padding-top: 20px;
   text-align: center;
+  flex-direction: column;
 `;
 
 export const ModalButtons = styled.div`
