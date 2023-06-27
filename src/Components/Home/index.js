@@ -11,12 +11,10 @@ const Home = () => {
   const [loaded, setLoaded] = useState(false);
   const [liveStreams, setLiveStreams] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
-  const [duplicate, setDuplicate] = useState(false);
   const [collapseLeftBar, setCollapseLeftBar] = useState(false);
   const [hoveredLeftTab, setHoveredLeftTab] = useState(false);
   const [collapseRightBar, setCollapseRightBar] = useState(false);
   const [hoveredRightTab, setHoveredRightTab] = useState(false);
-  const [empty, setEmpty] = useState(false);
 
   const [searchInputValue, setSearchInputValue] = useState("");
 
@@ -46,47 +44,45 @@ const Home = () => {
     let selectedLives = [];
     const correctOrder = location?.pathname.split("/");
 
-    // Corrige a tela de greetings
-    if (correctOrder.filter((username) => username !== "")?.length === 0)
-      setEmpty(true);
-
-    correctOrder
-      ?.filter((path) => path !== "")
-      .map(async (username) => {
-        await axios
-          .get(`https://kick.com/api/v2/channels/${username}`)
-          .then((response) => {
-            if (response?.status === 200) {
-              if (!selectedLives.includes(username)) {
-                selectedLives.push(username);
-              } else {
-                setDuplicate(true);
+    if (correctOrder.filter((username) => username !== "")?.length > 0) {
+      correctOrder
+        ?.filter((path) => path !== "")
+        .map(async (username) => {
+          await axios
+            .get(`https://kick.com/api/v2/channels/${username}`)
+            .then((response) => {
+              if (response?.status === 200) {
+                if (!selectedLives.includes(username)) {
+                  selectedLives.push(username);
+                }
               }
-            }
-            return username;
-          })
-          .catch((err) => {
-            if (
-              err?.response?.data?.message ===
-              "No query results for model [App\\Models\\Channel]."
-            ) {
-              console.log(`Username ${username} not found`);
-            }
-          })
-          .finally(() => {
-            if (duplicate) {
-              toast.info(
-                "There was a duplicate channel passed by the URL, we removed that for you"
-              );
-            }
-            setTimeout(() => {
-              const ordered = orderArray(selectedLives, correctOrder);
-              setLiveStreams(ordered);
-              setCurrentChat(ordered[0]);
-              setLoaded(true);
-            }, 1000);
-          });
-      });
+              return username;
+            })
+            .catch((err) => {
+              if (
+                err?.response?.data?.message ===
+                "No query results for model [App\\Models\\Channel]."
+              ) {
+                console.log(`Username ${username} not found`);
+              }
+            })
+            .finally(() => {
+              setTimeout(() => {
+                const ordered = orderArray(selectedLives, correctOrder);
+                setLiveStreams(ordered);
+                setCurrentChat(ordered[0]);
+                setCollapseRightBar(false);
+                setLoaded(true);
+              }, 1000);
+            });
+        });
+    } else {
+      // Base welcome screen
+      setLiveStreams([]);
+      setCurrentChat(null);
+      setCollapseRightBar(true);
+      setLoaded(true);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
@@ -95,6 +91,10 @@ const Home = () => {
    * @param {string} channel Nome do canal
    */
   const handleAddChannel = async (channel) => {
+    if (channel === "") {
+      toast.error("Stream name can not be empty!");
+      return;
+    }
     await axios
       .get(`https://kick.com/api/v2/channels/${channel}`)
       .then((response) => {
@@ -104,10 +104,17 @@ const Home = () => {
             copy.push(channel);
             setLiveStreams(copy);
             searchRef.current.value = "";
+            
+            // Se for o primeiro canal, ativar chat e descolapsa menu direito
+            if (liveStreams?.length === 0) {
+              setCurrentChat(channel);
+              setCollapseRightBar(false);
+            }
           } else {
             console.log(`Username ${channel} is already on list`);
             toast.error(`Username ${channel} is already on list`);
             searchRef.current.value = "";
+            setSearchInputValue("");
           }
         }
       })
@@ -119,6 +126,7 @@ const Home = () => {
           console.log(`Username ${channel} not found`);
           toast.error("Username was not found!");
           searchRef.current.value = "";
+          setSearchInputValue("");
         }
       });
   };
@@ -175,7 +183,7 @@ const Home = () => {
         </Styled.ModalButtons>
       </Modal>
       <Styled.Wrapper>
-        {loaded && liveStreams.length > 0 ? (
+        {loaded ? (
           <>
             {!collapseLeftBar ? (
               <>
@@ -210,7 +218,7 @@ const Home = () => {
 
                     <Styled.Header>
                       <Styled.CommandRow>
-                        Channels
+                        {liveStreams?.length > 0 && <>Channels</>}
                         {/**<Styled.WatchAll>Watch All</Styled.WatchAll>**/}
                       </Styled.CommandRow>
                     </Styled.Header>
@@ -226,6 +234,7 @@ const Home = () => {
                                   active={currentChat === channel}
                                   onClick={() => {
                                     setCurrentChat(channel);
+                                    setCollapseRightBar(false);
                                   }}
                                 />
                                 <Styled.RemoveStream
@@ -261,24 +270,45 @@ const Home = () => {
               </Styled.BarCollapsed>
             )}
 
-            <Styled.Streams amountOfChats={liveStreams?.length}>
-              {liveStreams.map((live, index) => {
-                return (
-                  <Styled.LiveStream
-                    key={index}
-                    amountOfChats={liveStreams?.length}
-                    title={`Livestream - ${live}`}
-                    width="401"
-                    height="226"
-                    src={`https://player.kick.com/${live}?muted=${
-                      index === 0 ? "true" : "false"
-                    }&autoplay=true`}
-                    frameBorder="0"
-                    allowFullScreen
-                  ></Styled.LiveStream>
-                );
-              })}
-            </Styled.Streams>
+            {liveStreams?.length === 0 ? (
+              <Styled.Streams>
+                <Styled.Credits>
+                  <Styled.Title>MultiKick.stream</Styled.Title>
+                  Welcome to MultiKick! You can use this site to watch any
+                  number of kick.com streams at the same time (as long as your
+                  computer can handle it). Simply put the streams you want in
+                  the url. For example: multikick.stream/godzamy. MultiKick will
+                  optimize the layout of streams to give you the maximum size on
+                  each of the streams, while maintaining aspect ratio. For the
+                  curious, the source of this page is available at
+                  github.com/wyvern800/multikick. Happy streamwatching!
+                  <Styled.CreatedBy>
+                    Created by Matheus Ferreira
+                  </Styled.CreatedBy>
+                </Styled.Credits>
+              </Styled.Streams>
+            ) : (
+              <>
+                <Styled.Streams amountOfChats={liveStreams?.length}>
+                  {liveStreams.map((live, index) => {
+                    return (
+                      <Styled.LiveStream
+                        key={index}
+                        amountOfChats={liveStreams?.length}
+                        title={`Livestream - ${live}`}
+                        width="401"
+                        height="226"
+                        src={`https://player.kick.com/${live}?muted=${
+                          index === 0 ? "true" : "false"
+                        }&autoplay=true`}
+                        frameBorder="0"
+                        allowFullScreen
+                      ></Styled.LiveStream>
+                    );
+                  })}
+                </Styled.Streams>
+              </>
+            )}
 
             {!collapseRightBar ? (
               <Styled.ChatBar collapsed={collapseRightBar}>
@@ -287,32 +317,26 @@ const Home = () => {
                     <Styled.CollapseTabRight
                       onClick={() => setCollapseRightBar(!collapseRightBar)}
                     />
-                    {currentChat}'s Chat
+                    {liveStreams?.length === 0 ? (
+                      <></>
+                    ) : (
+                      <>{currentChat}'s Chat</>
+                    )}
                   </Styled.CommandRow>
                 </Styled.Header>
-                {/*<Styled.ChatTabs>
-              {liveStreams.map((live, index) => {
-                return (
-                  <Styled.ChatTab
-                    key={index}
-                    active={currentChat === live}
-                    onClick={() => {
-                      setCurrentChat(live);
-                    }}
-                  >
-                    {live}
-                  </Styled.ChatTab>
-                );
-              })}
-            </Styled.ChatTabs>*/}
 
-                {currentChat !== null && (
+                {currentChat !== null ? (
                   <Styled.CurrentChat
                     amountOfChats={liveStreams?.length}
                     title={`Chat - ${currentChat}`}
                     src={`https://kick.com/${currentChat}/chatroom`}
                     frameBorder="0"
                   ></Styled.CurrentChat>
+                ) : (
+                  <div style={{ textAlign: "center" }}>
+                    Please, select a chat from any stream through the left panel
+                    before having something here.
+                  </div>
                 )}
               </Styled.ChatBar>
             ) : (
@@ -326,25 +350,10 @@ const Home = () => {
               </Styled.BarCollapsed>
             )}
           </>
-        ) : !loaded && !empty ? (
+        ) : (
           <Styled.LoadingDiv>
             <Styled.Loader size={75} color={"#53fc18"} />
           </Styled.LoadingDiv>
-        ) : (
-          <Styled.WrapperCredits>
-            <Styled.Credits>
-              <Styled.Title>MultiKick.stream</Styled.Title>
-              Welcome to MultiKick! You can use this site to watch any number of
-              kick.com streams at the same time (as long as your computer can
-              handle it). Simply put the streams you want in the url. For
-              example: multikick.stream/godzamy. MultiKick will optimize the
-              layout of streams to give you the maximum size on each of the
-              streams, while maintaining aspect ratio. For the curious, the
-              source of this page is available at
-              github.com/wyvern800/multikick. Happy streamwatching!
-              <Styled.CreatedBy>Created by Matheus Ferreira</Styled.CreatedBy>
-            </Styled.Credits>
-          </Styled.WrapperCredits>
         )}
       </Styled.Wrapper>
     </>

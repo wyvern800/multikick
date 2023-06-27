@@ -35,6 +35,7 @@ export const Streams = styled.div`
   width: 100%;
   flex-wrap: wrap;
   justify-content: space-evenly;
+  align-items: center;
   max-width: 100vw;
   overflow-y: auto;
 
@@ -100,6 +101,7 @@ export const LiveStream = styled.iframe`
 export const ChatBar = styled.div`
   width: 302px;
   height: 100vh;
+  min-width: 302px;
   margin: 0;
   padding: 0;
   background-color: #191b1f;
@@ -121,6 +123,8 @@ export const LeftBar = styled.div`
   display: flex;
   flex-direction: column;
   width: 350px;
+  min-width: 293px;
+  max-width: 293px;
   height: 100vh;
   margin: 0;
   padding: 0;
@@ -232,6 +236,7 @@ export const CurrentChat = styled.iframe`
 export const Credits = styled.div`
   color: white;
   width: 35%;
+  height: fit-content;
   border: 1px solid #53fc18;
   align-items: center;
   justify-content: space-between;
@@ -430,6 +435,7 @@ export const ConsiderDonating = styled.div`
   justify-content: center;
   border-top: 1px solid #24272C;
   padding: 5px;
+  text-align: center;
 `;
 
 export const ModalButtons = styled.div`
