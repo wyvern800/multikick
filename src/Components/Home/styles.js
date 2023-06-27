@@ -350,6 +350,7 @@ export const CollapseTabRight = styled(IoIosArrowDropright)`
 
   &&:hover {
     cursor: pointer;
+    color: #53fc18;
   }
 
   ${props => props.collapsed && css`
