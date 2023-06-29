@@ -186,7 +186,7 @@ const Home = () => {
         }}
         center
       >
-        <h2>Are you sure you want to remove: {selectedToDeleteRedux}?</h2>
+        <h2>Are you sure you want to remove: <b>{selectedToDeleteRedux}</b>?</h2>
         <Styled.ModalButtons>
           <Styled.Button
             onClick={() => {

@@ -31,3 +31,11 @@ body {
 *::-webkit-scrollbar-thumb:hover {
   background: rgb(54, 56, 58);
 }
+
+.react-responsive-modal-closeButton {
+  fill: white;
+}
+
+.react-responsive-modal-closeButton:hover {
+  fill: #53fc18;
+}
