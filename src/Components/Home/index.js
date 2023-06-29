@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect , useRef } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -7,22 +7,39 @@ import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import Ads from "../Ads";
 
+import { useSelector, useDispatch } from 'react-redux';
+
+import { 
+  setLoaded, 
+  setActiveChat, 
+  setStreams, 
+  hoverLeftTab, 
+  collapseLeftBar,
+  hoverRightTab,
+  collapseRightBar,
+  setSearch,
+  setOpen,
+  setSelectedToDelete
+} from '../../redux/impl/appSlice';
+
 const Home = () => {
-  const location = useLocation();
-  const [loaded, setLoaded] = useState(false);
-  const [liveStreams, setLiveStreams] = useState([]);
-  const [currentChat, setCurrentChat] = useState(null);
-  const [collapseLeftBar, setCollapseLeftBar] = useState(false);
-  const [hoveredLeftTab, setHoveredLeftTab] = useState(false);
-  const [collapseRightBar, setCollapseRightBar] = useState(false);
-  const [hoveredRightTab, setHoveredRightTab] = useState(false);
-
-  const [searchInputValue, setSearchInputValue] = useState("");
-
   const searchRef = useRef();
+  const location = useLocation();
+  const dispatch = useDispatch();
 
-  const [open, setOpen] = useState(false);
-  const [selectedToDelete, setSelectedToDelete] = useState("");
+  const loadedRedux = useSelector((state) => state.app.loaded);
+  const streamsRedux = useSelector((state) => state.app.streams);
+  const activeChatRedux = useSelector((state) => state.app.activeChat);
+  const collapsedLeftBarRedux = useSelector((state) => state.app.collapsedLeftBar);
+  const hoveredLeftTabRedux = useSelector((state) => state.app.hoveredLeftTab);
+  const collapseRightBarRedux = useSelector((state) => state.app.collapsedRightBar);
+  const hoveredRightTabRedux = useSelector((state) => state.app.hoveredRightTab);
+  const searchValueRedux = useSelector((state) => state.app.searchValue);
+  const openRedux = useSelector((state) => state.app.open);
+  const selectedToDeleteRedux = useSelector((state) => state.app.selectedToDelete);
+
+  // const [open, setOpen] = useState(false);
+  //const [selectedToDelete, setSelectedToDelete] = useState("");
 
   /**
    * Ordenar array
@@ -70,19 +87,19 @@ const Home = () => {
             .finally(() => {
               setTimeout(() => {
                 const ordered = orderArray(selectedLives, correctOrder);
-                setLiveStreams(ordered);
-                setCurrentChat(ordered[0]);
-                setCollapseRightBar(false);
-                setLoaded(true);
+                dispatch(setStreams(ordered))
+                dispatch(setActiveChat(ordered[0]))
+                dispatch(collapseRightBar(false));
+                dispatch(setLoaded(true));
               }, 1000);
             });
         });
     } else {
       // Base welcome screen
-      setLiveStreams([]);
-      setCurrentChat(null);
-      setCollapseRightBar(true);
-      setLoaded(true);
+      dispatch(setStreams([]));
+      dispatch(setActiveChat(null));
+      dispatch(collapseRightBar(true));
+      dispatch(setLoaded(true));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
@@ -100,22 +117,22 @@ const Home = () => {
       .get(`https://kick.com/api/v2/channels/${channel}`)
       .then((response) => {
         if (response?.status === 200) {
-          if (!liveStreams.includes(channel)) {
-            let copy = [...liveStreams];
+          if (!streamsRedux.includes(channel)) {
+            let copy = [...streamsRedux];
             copy.push(channel);
-            setLiveStreams(copy);
+            dispatch(setStreams(copy))
             searchRef.current.value = "";
 
             // Se for o primeiro canal, ativar chat e descolapsa menu direito
-            if (liveStreams?.length === 0) {
-              setCurrentChat(channel);
-              setCollapseRightBar(false);
+            if (streamsRedux?.length === 0) {
+              dispatch(setActiveChat(channel))
+              dispatch(collapseRightBar(false));
             }
           } else {
             console.log(`Username ${channel} is already on list`);
             toast.error(`Username ${channel} is already on list`);
             searchRef.current.value = "";
-            setSearchInputValue("");
+            dispatch(setSearch(""));
           }
         }
       })
@@ -127,7 +144,7 @@ const Home = () => {
           console.log(`Username ${channel} not found`);
           toast.error("Username was not found!");
           searchRef.current.value = "";
-          setSearchInputValue("");
+          dispatch(setSearch(""));
         }
       });
   };
@@ -137,21 +154,28 @@ const Home = () => {
    * @param {string} channel Canal
    */
   const handleDeletion = (channel) => {
-    let copy = [...liveStreams];
+    let copy = [...streamsRedux];
+
     const toDelete = copy.find((chan) => chan === channel);
     if (toDelete) {
       copy.splice(copy.indexOf(toDelete), 1);
-      setLiveStreams(copy);
-      setOpen(false);
+      dispatch(setStreams(copy))
+      dispatch(setOpen(false));
+      
+      // Se for o último canal aberto e for deletado, desligar o chat atual e esconder tab da dreita
+      if (copy?.length === 0) {
+        dispatch(setActiveChat(null));
+        dispatch(collapseRightBar(true));
+      }
     }
   };
 
   return (
     <>
       <Modal
-        open={open}
+        open={openRedux}
         onClose={() => {
-          setOpen(!open);
+          dispatch(setOpen(!openRedux));
         }}
         styles={{
           modal: {
@@ -162,20 +186,20 @@ const Home = () => {
         }}
         center
       >
-        <h2>Are you sure you want to remove: {selectedToDelete}?</h2>
+        <h2>Are you sure you want to remove: {selectedToDeleteRedux}?</h2>
         <Styled.ModalButtons>
           <Styled.Button
             onClick={() => {
-              handleDeletion(selectedToDelete);
+              handleDeletion(selectedToDeleteRedux);
             }}
           >
             Yes
           </Styled.Button>
           <Styled.Button
             onClick={() => {
-              setOpen(false);
+              dispatch(setOpen(false));
               setTimeout(() => {
-                setSelectedToDelete("");
+                dispatch(setSelectedToDelete(""));
               }, 500);
             }}
           >
@@ -184,17 +208,17 @@ const Home = () => {
         </Styled.ModalButtons>
       </Modal>
       <Styled.Wrapper>
-        {loaded ? (
+        {loadedRedux ? (
           <>
-            {!collapseLeftBar ? (
+            {!collapsedLeftBarRedux ? (
               <>
-                <Styled.LeftBar collapsed={collapseLeftBar}>
+                <Styled.LeftBar collapsed={collapsedLeftBarRedux}>
                   <Styled.TopSection>
                     <Styled.Header>
                       <Styled.CommandRow>
                         MultiKick.stream
                         <Styled.CollapseTabLeft
-                          onClick={() => setCollapseLeftBar(!collapseLeftBar)}
+                          onClick={() => dispatch(collapseLeftBar(!collapsedLeftBarRedux))}
                         />
                       </Styled.CommandRow>
                     </Styled.Header>
@@ -204,44 +228,44 @@ const Home = () => {
                         <Styled.Search
                           ref={searchRef}
                           placeholder={"Stream name here"}
-                          onChange={(e) => setSearchInputValue(e.target.value)}
+                          onChange={(e) => dispatch(setSearch(e.target.value))}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                              handleAddChannel(searchInputValue);
+                              handleAddChannel(searchValueRedux);
                             }
                           }}
                         />
                         <Styled.AddStream
-                          onClick={() => handleAddChannel(searchInputValue)}
+                          onClick={() => handleAddChannel(searchValueRedux)}
                         />
                       </Styled.SearchBar>
                     </Styled.Commands>
 
                     <Styled.Header>
                       <Styled.CommandRow>
-                        {liveStreams?.length > 0 && <>Channels</>}
+                        {streamsRedux?.length > 0 && <>Channels</>}
                         {/**<Styled.WatchAll>Watch All</Styled.WatchAll>**/}
                       </Styled.CommandRow>
                     </Styled.Header>
 
                     <Styled.Header>
                       <Styled.ChannelsRow>
-                        {liveStreams.map((channel, index) => {
+                        {streamsRedux.map((channel, index) => {
                           return (
                             <Styled.CommandRow key={index}>
                               <Styled.ChannelName>{channel}</Styled.ChannelName>
                               <Styled.Actions>
                                 <Styled.ToggleChat
-                                  active={currentChat === channel}
+                                  active={activeChatRedux === channel}
                                   onClick={() => {
-                                    setCurrentChat(channel);
-                                    setCollapseRightBar(false);
+                                    dispatch(setActiveChat(channel))
+                                    dispatch(collapseRightBar(false));
                                   }}
                                 />
                                 <Styled.RemoveStream
                                   onClick={() => {
-                                    setOpen(true);
-                                    setSelectedToDelete(channel);
+                                    dispatch(setOpen(true));
+                                    dispatch(setSelectedToDelete(channel));
                                   }}
                                 />
                               </Styled.Actions>
@@ -264,16 +288,16 @@ const Home = () => {
               </>
             ) : (
               <Styled.BarCollapsed
-                beingHovered={hoveredLeftTab}
-                onClick={() => setCollapseLeftBar(!collapseLeftBar)}
-                onMouseEnter={() => setHoveredLeftTab(true)}
-                onMouseLeave={() => setHoveredLeftTab(false)}
+                beingHovered={hoveredLeftTabRedux}
+                onClick={() => dispatch(collapseLeftBar(!collapsedLeftBarRedux))}
+                onMouseEnter={() => dispatch(hoverLeftTab(true))}
+                onMouseLeave={() => dispatch(hoverLeftTab(false))}
               >
-                <Styled.CollapseTabRight collapsed={collapseLeftBar} />
+                <Styled.CollapseTabRight collapsed={collapsedLeftBarRedux} />
               </Styled.BarCollapsed>
             )}
 
-            {liveStreams?.length === 0 ? (
+            {streamsRedux?.length === 0 ? (
               <Styled.Streams>
                 <Styled.Credits>
                   <Styled.Title>MultiKick.stream</Styled.Title>
@@ -292,12 +316,12 @@ const Home = () => {
               </Styled.Streams>
             ) : (
               <>
-                <Styled.Streams amountOfChats={liveStreams?.length}>
-                  {liveStreams.map((live, index) => {
+                <Styled.Streams amountOfChats={streamsRedux?.length}>
+                  {streamsRedux.map((live, index) => {
                     return (
                       <Styled.LiveStream
                         key={index}
-                        amountOfChats={liveStreams?.length}
+                        amountOfChats={streamsRedux?.length}
                         title={`Livestream - ${live}`}
                         width="401"
                         height="226"
@@ -313,26 +337,26 @@ const Home = () => {
               </>
             )}
 
-            {!collapseRightBar ? (
-              <Styled.ChatBar collapsed={collapseRightBar}>
+            {!collapseRightBarRedux ? (
+              <Styled.ChatBar collapsed={collapseRightBarRedux}>
                 <Styled.Header>
                   <Styled.CommandRow>
                     <Styled.CollapseTabRight
-                      onClick={() => setCollapseRightBar(!collapseRightBar)}
+                      onClick={() => dispatch(collapseRightBar(!collapseRightBarRedux))}
                     />
-                    {liveStreams?.length === 0 ? (
+                    {streamsRedux?.length === 0 ? (
                       <></>
                     ) : (
-                      <>{currentChat}'s Chat</>
+                      <>{activeChatRedux}'s Chat</>
                     )}
                   </Styled.CommandRow>
                 </Styled.Header>
 
-                {currentChat !== null ? (
+                {activeChatRedux !== null ? (
                   <Styled.CurrentChat
-                    amountOfChats={liveStreams?.length}
-                    title={`Chat - ${currentChat}`}
-                    src={`https://kick.com/${currentChat}/chatroom`}
+                    amountOfChats={streamsRedux?.length}
+                    title={`Chat - ${activeChatRedux}`}
+                    src={`https://kick.com/${activeChatRedux}/chatroom`}
                     frameBorder="0"
                   ></Styled.CurrentChat>
                 ) : (
@@ -344,12 +368,12 @@ const Home = () => {
               </Styled.ChatBar>
             ) : (
               <Styled.BarCollapsed
-                beingHovered={hoveredRightTab}
-                onClick={() => setCollapseRightBar(!collapseRightBar)}
-                onMouseEnter={() => setHoveredRightTab(true)}
-                onMouseLeave={() => setHoveredRightTab(false)}
+                beingHovered={hoveredRightTabRedux}
+                onClick={() => dispatch(collapseRightBar(!collapseRightBarRedux))}
+                onMouseEnter={() => dispatch(hoverRightTab(true))}
+                onMouseLeave={() => dispatch(hoverRightTab(false))}
               >
-                <Styled.CollapseTabLeft collapsed={collapseRightBar} />
+                <Styled.CollapseTabLeft collapsed={collapseRightBarRedux} />
               </Styled.BarCollapsed>
             )}
           </>
