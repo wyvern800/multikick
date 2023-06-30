@@ -292,6 +292,7 @@ const Home = () => {
                 onClick={() => dispatch(collapseLeftBar(!collapsedLeftBarRedux))}
                 onMouseEnter={() => dispatch(hoverLeftTab(true))}
                 onMouseLeave={() => dispatch(hoverLeftTab(false))}
+                left={false}
               >
                 <Styled.CollapseTabRight collapsed={collapsedLeftBarRedux} />
               </Styled.BarCollapsed>
@@ -372,6 +373,7 @@ const Home = () => {
                 onClick={() => dispatch(collapseRightBar(!collapseRightBarRedux))}
                 onMouseEnter={() => dispatch(hoverRightTab(true))}
                 onMouseLeave={() => dispatch(hoverRightTab(false))}
+                left={true}
               >
                 <Styled.CollapseTabLeft collapsed={collapseRightBarRedux} />
               </Styled.BarCollapsed>

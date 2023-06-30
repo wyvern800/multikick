@@ -107,6 +107,7 @@ export const ChatBar = styled.div`
   background-color: #191b1f;
   color: white;
   position: sticky;
+  border-left: 1px solid #24272C;
 
   @media (max-width: 1200px) {
     display: none;
@@ -133,6 +134,7 @@ export const LeftBar = styled.div`
   position: sticky;
   justify-content: space-between;
   align-items: center;
+  border-right: 1px solid #24272C;
 
   @media (max-width: 1200px) {
     display: none;
@@ -157,6 +159,12 @@ export const BarCollapsed = styled.div`
   position: sticky;
   align-items: center;
   justify-content: center;
+
+  ${props => props.left ? css`
+    border-left: 1px solid #24272C;
+  ` : css`
+    border-right: 1px solid #24272C;
+  `}
 
   @media (max-width: 1200px) {
     display: none;
@@ -443,6 +451,7 @@ export const ConsiderDonating = styled.div`
   padding-top: 20px;
   text-align: center;
   flex-direction: column;
+  font-size: 0.8rem;
 `;
 
 export const ModalButtons = styled.div`
