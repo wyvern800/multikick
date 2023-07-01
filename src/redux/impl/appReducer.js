@@ -1,19 +1,21 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+const initialState = {
+  loaded: false,
+  streams: [],
+  activeChat: null,
+  collapsedLeftBar: false,
+  hoveredLeftTab: false,
+  collapsedRightBar: false,
+  hoveredRightTab: false,
+  searchValue: '',
+  open: false,
+  selectedToDelete: false,
+}
+
 export const appSlice = createSlice({
   name: 'app',
-  initialState: {
-    loaded: false,
-    streams: [],
-    activeChat: null,
-    collapsedLeftBar: false,
-    hoveredLeftTab: false,
-    collapsedRightBar: false,
-    hoveredRightTab: false,
-    searchValue: '',
-    open: false,
-    selectedToDelete: false,
-  },
+  initialState,
   reducers: {
     collapseLeftBar: (state, action) => {
       state.collapsedLeftBar = action.payload
@@ -59,6 +61,6 @@ export const {
   setSearch,
   setOpen,
   setSelectedToDelete
-} = appSlice.actions
+} = appSlice.actions;
 
-export default appSlice.reducer
+export default appSlice.reducer;

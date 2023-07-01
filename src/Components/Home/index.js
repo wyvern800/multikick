@@ -1,4 +1,4 @@
-import React, { useEffect , useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -7,20 +7,20 @@ import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import Ads from "../Ads";
 
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 
-import { 
-  setLoaded, 
-  setActiveChat, 
-  setStreams, 
-  hoverLeftTab, 
+import {
+  setLoaded,
+  setActiveChat,
+  setStreams,
+  hoverLeftTab,
   collapseLeftBar,
   hoverRightTab,
   collapseRightBar,
   setSearch,
   setOpen,
-  setSelectedToDelete
-} from '../../redux/impl/appSlice';
+  setSelectedToDelete,
+} from "../../redux/impl/appReducer";
 
 const Home = () => {
   const searchRef = useRef();
@@ -30,13 +30,21 @@ const Home = () => {
   const loadedRedux = useSelector((state) => state.app.loaded);
   const streamsRedux = useSelector((state) => state.app.streams);
   const activeChatRedux = useSelector((state) => state.app.activeChat);
-  const collapsedLeftBarRedux = useSelector((state) => state.app.collapsedLeftBar);
+  const collapsedLeftBarRedux = useSelector(
+    (state) => state.app.collapsedLeftBar
+  );
   const hoveredLeftTabRedux = useSelector((state) => state.app.hoveredLeftTab);
-  const collapseRightBarRedux = useSelector((state) => state.app.collapsedRightBar);
-  const hoveredRightTabRedux = useSelector((state) => state.app.hoveredRightTab);
+  const collapseRightBarRedux = useSelector(
+    (state) => state.app.collapsedRightBar
+  );
+  const hoveredRightTabRedux = useSelector(
+    (state) => state.app.hoveredRightTab
+  );
   const searchValueRedux = useSelector((state) => state.app.searchValue);
   const openRedux = useSelector((state) => state.app.open);
-  const selectedToDeleteRedux = useSelector((state) => state.app.selectedToDelete);
+  const selectedToDeleteRedux = useSelector(
+    (state) => state.app.selectedToDelete
+  );
 
   // const [open, setOpen] = useState(false);
   //const [selectedToDelete, setSelectedToDelete] = useState("");
@@ -47,23 +55,29 @@ const Home = () => {
    * @param {any} order Array
    * @returns
    */
-  const orderArray = (array, order) => {
+  /*const orderArray = (array, order) => {
     return array.sort((a, b) => {
       const indexA = order.indexOf(a);
       const indexB = order.indexOf(b);
       return indexA - indexB;
     });
-  };
+  };*/
 
   // Pega os nomes das lives
   useEffect(() => {
     document.title = "multikick";
 
-    let selectedLives = [];
+    /*let selectedLives =
+      streamsRedux && streamsRedux.length > 0 ? [...streamsRedux] : [];*/
+      
     const correctOrder = location?.pathname.split("/");
 
     if (correctOrder.filter((username) => username !== "")?.length > 0) {
-      correctOrder
+      toast.info(
+        "We have removed the funcionality of adding the stream names by URL (add the streams name by the left panel instead) and hence that, the data here will now persist and will be loaded when you reload the page =)"
+      );
+
+      /*correctOrder
         ?.filter((path) => path !== "")
         .map(async (username) => {
           await axios
@@ -85,21 +99,23 @@ const Home = () => {
               }
             })
             .finally(() => {
-              setTimeout(() => {
-                const ordered = orderArray(selectedLives, correctOrder);
-                dispatch(setStreams(ordered))
-                dispatch(setActiveChat(ordered[0]))
-                dispatch(collapseRightBar(false));
-                dispatch(setLoaded(true));
-              }, 1000);
+              //setTimeout(() => {
+              //const ordered = [...new Set(orderArray([...streamsRedux, ...selectedLives], correctOrder))];
+              //dispatch(setStreams(ordered))
+              //dispatch(setActiveChat(ordered[0]))
+              //dispatch(collapseRightBar(false));
+              //dispatch(setLoaded(true));
+              //}, 1000);
             });
-        });
+        });*/
     } else {
       // Base welcome screen
-      dispatch(setStreams([]));
-      dispatch(setActiveChat(null));
-      dispatch(collapseRightBar(true));
-      dispatch(setLoaded(true));
+      if (streamsRedux?.length <= 0) {
+        dispatch(setStreams([]));
+        dispatch(setActiveChat(null));
+        dispatch(collapseRightBar(true));
+        dispatch(setLoaded(true));
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
@@ -120,12 +136,12 @@ const Home = () => {
           if (!streamsRedux.includes(channel)) {
             let copy = [...streamsRedux];
             copy.push(channel);
-            dispatch(setStreams(copy))
+            dispatch(setStreams(copy));
             searchRef.current.value = "";
 
             // Se for o primeiro canal, ativar chat e descolapsa menu direito
             if (streamsRedux?.length === 0) {
-              dispatch(setActiveChat(channel))
+              dispatch(setActiveChat(channel));
               dispatch(collapseRightBar(false));
             }
           } else {
@@ -159,9 +175,9 @@ const Home = () => {
     const toDelete = copy.find((chan) => chan === channel);
     if (toDelete) {
       copy.splice(copy.indexOf(toDelete), 1);
-      dispatch(setStreams(copy))
+      dispatch(setStreams(copy));
       dispatch(setOpen(false));
-      
+
       // Se for o último canal aberto e for deletado, desligar o chat atual e esconder tab da dreita
       if (copy?.length === 0) {
         dispatch(setActiveChat(null));
@@ -186,7 +202,9 @@ const Home = () => {
         }}
         center
       >
-        <h2>Are you sure you want to remove: <b>{selectedToDeleteRedux}</b>?</h2>
+        <h2>
+          Are you sure you want to remove: <b>{selectedToDeleteRedux}</b>?
+        </h2>
         <Styled.ModalButtons>
           <Styled.Button
             onClick={() => {
@@ -218,7 +236,9 @@ const Home = () => {
                       <Styled.CommandRow>
                         MultiKick.stream
                         <Styled.CollapseTabLeft
-                          onClick={() => dispatch(collapseLeftBar(!collapsedLeftBarRedux))}
+                          onClick={() =>
+                            dispatch(collapseLeftBar(!collapsedLeftBarRedux))
+                          }
                         />
                       </Styled.CommandRow>
                     </Styled.Header>
@@ -258,7 +278,7 @@ const Home = () => {
                                 <Styled.ToggleChat
                                   active={activeChatRedux === channel}
                                   onClick={() => {
-                                    dispatch(setActiveChat(channel))
+                                    dispatch(setActiveChat(channel));
                                     dispatch(collapseRightBar(false));
                                   }}
                                 />
@@ -276,7 +296,7 @@ const Home = () => {
                     </Styled.Header>
                   </Styled.TopSection>
 
-                  <Styled.EmptyDiv border={true}/>
+                  <Styled.EmptyDiv border={true} />
 
                   <Styled.ConsiderDonating>
                     <Ads dataAdSlot="2611193497" />
@@ -289,7 +309,9 @@ const Home = () => {
             ) : (
               <Styled.BarCollapsed
                 beingHovered={hoveredLeftTabRedux}
-                onClick={() => dispatch(collapseLeftBar(!collapsedLeftBarRedux))}
+                onClick={() =>
+                  dispatch(collapseLeftBar(!collapsedLeftBarRedux))
+                }
                 onMouseEnter={() => dispatch(hoverLeftTab(true))}
                 onMouseLeave={() => dispatch(hoverLeftTab(false))}
                 left={false}
@@ -343,7 +365,9 @@ const Home = () => {
                 <Styled.Header>
                   <Styled.CommandRow>
                     <Styled.CollapseTabRight
-                      onClick={() => dispatch(collapseRightBar(!collapseRightBarRedux))}
+                      onClick={() =>
+                        dispatch(collapseRightBar(!collapseRightBarRedux))
+                      }
                     />
                     {streamsRedux?.length === 0 ? (
                       <></>
@@ -370,7 +394,9 @@ const Home = () => {
             ) : (
               <Styled.BarCollapsed
                 beingHovered={hoveredRightTabRedux}
-                onClick={() => dispatch(collapseRightBar(!collapseRightBarRedux))}
+                onClick={() =>
+                  dispatch(collapseRightBar(!collapseRightBarRedux))
+                }
                 onMouseEnter={() => dispatch(hoverRightTab(true))}
                 onMouseLeave={() => dispatch(hoverRightTab(false))}
                 left={true}
