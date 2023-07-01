@@ -243,8 +243,10 @@ const Home = () => {
                       <Styled.CommandRow>
                         MultiKick.stream
                         <Styled.CollapseTabLeft
-                          onClick={() =>
-                            dispatch(collapseLeftBar(!collapsedLeftBarRedux))
+                          onClick={() => {
+                            dispatch(collapseLeftBar(!collapsedLeftBarRedux));
+                            dispatch(hoverLeftTab(false));
+                          }
                           }
                         />
                       </Styled.CommandRow>
@@ -372,8 +374,10 @@ const Home = () => {
                 <Styled.Header>
                   <Styled.CommandRow>
                     <Styled.CollapseTabRight
-                      onClick={() =>
-                        dispatch(collapseRightBar(!collapseRightBarRedux))
+                      onClick={() => {
+                        dispatch(collapseRightBar(!collapseRightBarRedux));
+                        dispatch(hoverRightTab(false));
+                        }
                       }
                     />
                     {streamsRedux?.length === 0 ? (
