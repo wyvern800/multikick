@@ -77,6 +77,13 @@ const Home = () => {
         "We have removed the funcionality of adding the stream names by URL (add the streams name by the left panel instead) and hence that, the data here will now persist and will be loaded when you reload the page =)"
       );
 
+      if (streamsRedux?.length <= 0) {
+        dispatch(setStreams([]));
+        dispatch(setActiveChat(null));
+        dispatch(collapseRightBar(true));
+        dispatch(setLoaded(true));
+      }
+
       /*correctOrder
         ?.filter((path) => path !== "")
         .map(async (username) => {
