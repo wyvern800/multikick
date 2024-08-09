@@ -1,5 +1,5 @@
 # multikick
-Multi-twitch-like app for those who want to watch multiple streams altogether
+Multi-twitch-like app for those who want to watch multiple streams at the same time
 
 
 # credits  
